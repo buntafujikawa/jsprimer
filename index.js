@@ -30,12 +30,12 @@ console.log(object);
 静的型付け言語のような変数の型はありません。 しかし、文字列、数値、真偽値といった値の型は存在します。 これらの値の型のことをデータ型とよびます。
 
 ## プリミティブ型とオブジェクト
-6種類のプリミティブ型とオブジェクトがある
+- 6種類のプリミティブ型とオブジェクトがある
 
-リテラルはデータ型の値を直接記述できる構文として定義されたもので、プリミティブ型の真偽値、数値、文字列、nullはリテラル表現
+- リテラルはデータ型の値を直接記述できる構文として定義されたもので、プリミティブ型の真偽値、数値、文字列、nullはリテラル表現
 プリミティブ型のデータでもプロパティアクセス可能、str.lengthみたいな
 
-オブジェクト（複合型）
+- オブジェクト（複合型）
 一方、プリミティブ型ではないものをオブジェクト（複合型）とよび、 オブジェクトは複数のプリミティブ型の値またはオブジェクトからなる集合です。
 オブジェクトは、一度作成した後もその値自体を変更できるためミュータブル（mutable）の特性を持ちます。
 オブジェクトは、値そのものではなく値への参照を経由して操作されるため、参照型のデータともいいます。
@@ -62,7 +62,7 @@ console.log(object2['123'])
 /*
 # 演算子
 
-数値は内部的にIEEE 754方式の浮動小数点数として表現されています
+- 数値は内部的にIEEE 754方式の浮動小数点数として表現されています
 そのため、整数と浮動小数点数の加算もプラス演算子で行えます
  */
 
@@ -113,3 +113,93 @@ const obj = {
 const { key, key2 } = obj; // const key = obj.key
 console.log(key); // => "value"/
 console.log(key2); // => "value"
+
+/*
+暗黙的な型変換
+
+- 暗黙的な型変換では、結果の値の型はオペランドの型に依存しています。 それを避けるには、暗黙的ではない変換 ー つまり明示的な型変換をする必要があります。
+- symbolは暗黙的な型変換はできない
+- NaNは何と演算しても結果がNaNとなってしまう
+ */
+
+// まじか...
+console.log(1 + true); // => 2
+
+const x = 1, y = "2", z = 3;
+console.log(x + y + z); // => "123"
+console.log(y + x + z); // => "213"
+console.log(x + z + y); // => "42"
+
+
+const userInput = "任意の文字列";
+const num = Number.parseInt(userInput, 10);
+if (!Number.isNaN(num)) {
+  console.log("NaNではない値にパースできた", num);
+} else {
+  // Number型と互換性がない値を数値にしても、NaNとなってしまう
+  console.log("NaNになった...", num);
+}
+
+
+/*
+関数と宣言
+
+- 引数を渡さずに呼び出すと、仮引数にはundefinedが入る
+- 引数が多い場合には無視される
+- 関数は関数オブジェクトとも呼ばれ、オブジェクトの一種
+  - 関数名に()を付けることで、関数としてまとめた処理を呼び出すことができる
+  - ()をつけて呼び出されなければ、関数をオブジェクトとして参照できる
+    - 関数が値として扱えることを、ファーストクラスファンクション（第一級関数）と呼ぶ
+- 関数を値として変数へ代入している式のことを関数式と呼ぶ
+- シンプルで且つ `this` の問題を解決できるので、functionキーワードよりもarrow functionで書いた方が良い
+
+ */
+
+function fn() {
+  console.log("fnが呼び出されました");
+}
+// 関数`fn`を`myFunc`変数に代入している
+const myFunc = fn;
+myFunc();
+
+// arrow function
+// 仮引数の数と定義
+const fnA = () => { /* 仮引数がないとき */ };
+const fnB = (x) => { /* 仮引数が1つのみのとき */ };
+const fnC = x => { /* 仮引数が1つのみのときは()を省略可能 */ };
+const fnD = (x, y) => { /* 仮引数が複数の時 */ };
+// 値の返し方
+// 次の２つの定義は同じ意味となる
+const mulA = x => { return x * x; }; // ブロックの中でreturn
+const mulB = x => x * x;            // 1行のみの場合はreturnとブロックを省略できる
+
+
+// 第1引数のオブジェクトから`id`プロパティを変数`id`として定義する
+function printUserId({ id }) {
+  console.log(id); // => 42
+}
+const user = {
+  id: 42
+};
+printUserId(user);
+
+// オブジェクトのプロパティである関数をメソッドとよぶ
+// > objのmethod1プロパティとmethod2プロパティに関数を定義しています。 このobj.method1プロパティとobj.method2プロパティがメソッドです。
+const obj1 = {
+  method1: function() {
+    // `function`キーワードでのメソッド
+    return "this is method1";
+  },
+  method2: () => {
+    // Arrow Functionでのメソッド
+    return "this is method2";
+  },
+  // note [ES2015] 短縮記法
+  method3() {
+    return "this is method3";
+  }
+};
+
+console.log(obj1.method1());
+console.log(obj1.method2());
+console.log(obj1.method3());

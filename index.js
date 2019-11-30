@@ -203,3 +203,52 @@ const obj1 = {
 console.log(obj1.method1());
 console.log(obj1.method2());
 console.log(obj1.method3());
+
+
+/*
+文と式
+
+- 評価した結果を変数に代入できるものは式
+- 処理する1ステップが1つの文
+- 式は文となることができますが(式文)、文は式となることができない
+ */
+
+// ブロックにすると、影響範囲がブロックの中だけになる
+{
+  const isTrue = true;
+  // isTrueという式がif文の中に出てくる
+  if (isTrue) {
+  }
+}
+
+/*
+ループと反復処理
+
+- JavaScriptでは、オブジェクトは何らかのオブジェクトを継承しているため、for...in文は親オブジェクトまで探索してしまう
+- Symbol.iteratorという特別な名前のメソッドを実装したオブジェクトをiterableと呼びます。 iterableオブジェクトは、for...of文で反復処理できます。
+ */
+{
+  const array = [1, 2, 3];
+  for (const value of array) {
+    console.log(value);
+  }
+  // 1
+  // 2
+  // 3
+
+  for (const value in array) {
+    console.log(value);
+  }
+  // 0
+  // 1
+  // 2
+
+  // stringもiterable
+  const str = "吉野家";
+  for (const value of str) {
+    console.log(value);
+  }
+  // 吉
+  // 野
+  // 家
+}

@@ -1,3 +1,5 @@
+'use strict';
+
 /*
 # JavaScriptとは
 ## ECMAScript
@@ -14,7 +16,7 @@ const hoge = 'hoge', fuga = 'fuga';
 console.log(hoge)
 console.log(fuga)
 
-// 変更可能
+// 変更可能、JavaScriptのconstは値を固定するのではなく、変数への再代入を防ぐためのもの
 const object = {
   key: 'val'
 };
@@ -115,7 +117,7 @@ console.log(key); // => "value"/
 console.log(key2); // => "value"
 
 /*
-暗黙的な型変換
+# 暗黙的な型変換
 
 - 暗黙的な型変換では、結果の値の型はオペランドの型に依存しています。 それを避けるには、暗黙的ではない変換 ー つまり明示的な型変換をする必要があります。
 - symbolは暗黙的な型変換はできない
@@ -142,7 +144,7 @@ if (!Number.isNaN(num)) {
 
 
 /*
-関数と宣言
+# 関数と宣言
 
 - 引数を渡さずに呼び出すと、仮引数にはundefinedが入る
 - 引数が多い場合には無視される
@@ -206,7 +208,7 @@ console.log(obj1.method3());
 
 
 /*
-文と式
+# 文と式
 
 - 評価した結果を変数に代入できるものは式
 - 処理する1ステップが1つの文
@@ -222,7 +224,7 @@ console.log(obj1.method3());
 }
 
 /*
-ループと反復処理
+# ループと反復処理
 
 - JavaScriptでは、オブジェクトは何らかのオブジェクトを継承しているため、for...in文は親オブジェクトまで探索してしまう
 - Symbol.iteratorという特別な名前のメソッドを実装したオブジェクトをiterableと呼びます。 iterableオブジェクトは、for...of文で反復処理できます。
@@ -254,8 +256,84 @@ console.log(obj1.method3());
 }
 
 /*
-オブジェクト
+# オブジェクト
 
 - オブジェクトはプロパティの集合です。プロパティとは名前（キー）と値（バリュー）が対になったものです。
 - 配列や関数などもオブジェクトの一種
+ */
+{
+  // プロパティ名と値に指定する変数名が同じ場合は{ name }のように省略して書けます
+  const name = "hoge";
+  const obj = {
+    name
+  };
+  console.log(obj);
+
+  const obj2 = new Object(); // = {} と同じ
+  console.log(obj2);
+
+  // 分割代入
+  const languages = {
+    ja: "日本語",
+    en: "英語"
+  };
+  // note [ES2015] 分割代入
+  const { ja, en } = languages;
+  console.log(ja);
+  console.log(en);
+
+  // Computed property names
+  const key = "key-string";
+  const obj3 = {
+    [key]: "value"
+  };
+  console.log(obj3); // { 'key-string': 'value' }
+
+  // note JavaScriptのconstは値を固定するのではなく、変数への再代入を防ぐためのもの。オブジェクトのプロパティの変更を防止するにはObject.freezeメソッドを利用する必要あり
+  const object = Object.freeze({key: "value"});
+  // object.key = "value"
+
+  // プロパティの存在確認
+  // 1. undefinedとの比較は値がundefinedの場合に区別できないので×
+  // 2. in
+  if ("ja" in languages) {
+    console.log("ok");
+  }
+  // 3. hasOwnProperty
+  console.log(languages.hasOwnProperty("ja"));
+
+  // String() は引数のtoStringを実行している
+  const customeObject = {
+    toString() {
+      return "hoge"
+    }
+  };
+  console.log(String(customeObject)); // hoge
+
+  // note オブジェクトのプロパティ名は文字列として扱われる
+  const obj4 = {};
+  const keyObject1 = { a: 1 };
+  obj4[keyObject1] = "1";
+  console.log(obj4); // { '[object Object]': '1' }
+
+  // 静的メソッド
+  console.log(Object.keys(languages));
+  console.log(Object.values(languages));
+  console.log(Object.entries(languages)); // [ [ 'ja', '日本語' ], [ 'en', '英語' ] ]
+
+  // オブジェクトの複製とマージ
+  // note [ES2015] Object.assignメソッド 空のオブジェクトをtargetにすることで、既存のオブジェクトには影響を与えずマージしたオブジェクトを作ることができる
+  // note Object.assignメソッドはshallow copy オブジェクト直下にあるプロパティだけをコピーする
+  // const obj = Object.assign(target, ...sources);
+  const merged = Object.assign({}, languages, obj3); // { ja: '日本語', en: '英語', 'key-string': 'value' }
+  console.log(merged);
+
+  // note [ES2018] スプレッド構文がオブジェクトに対してもES2018でサポート
+  const merged2 = {...languages, ...obj3};
+  console.log(merged2);
+}
+
+/*
+# プロトタイプオブジェクト
+
  */

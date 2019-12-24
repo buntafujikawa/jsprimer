@@ -335,5 +335,54 @@ console.log(obj1.method3());
 
 /*
 # プロトタイプオブジェクト
+- オブジェクトに自動的に実装されるメソッドをビルトインメソッドと呼ぶ(toStringとか)
+- prototypeオブジェクトに組み込まれているメソッドはプロトタイプメソッドと呼ぶ → インスタンス化時に継承
+- インスタンスからprototypeオブジェクト上に定義されたメソッドを参照できる仕組みをプロトタイプチェーンと呼びます
+
+ほとんどすべてのオブジェクトはObject.prototypeプロパティに定義されたprototypeオブジェクトを継承している
+ */
+
+{
+  console.log(typeof Object.prototype.toString); // => "function"
+  const hoge = {}; // インスタンス化時に継承
+  console.log(hoge.toString === Object.prototype.toString);
+
+  // プロパティの存在確認の詳細
+  const obj = {};
+  console.log(obj.hasOwnProperty("toString")); // false
+  console.log("toString" in obj); // true プロトタイプオブジェクトまで確認をする
+
+  // 継承元を明示する
+  // インスタンス化時にプロトタイプオブジェクトが継承されているので、下記の書き方と実質同じになる
+  const obj2 = Object.create(Object.prototype); // = {}
+
+  // ArrayもArray.prototypeを持っており、それを継承する。また、Array.prototypeはObject.prototypeを継承している
+  const array = [];
+  console.log(array.hasOwnProperty === Object.prototype.hasOwnProperty); // true!!
+}
+
+/*
+# 配列
+
 
  */
+
+{
+  const sparseArray = [1,, 3];
+  console.log(sparseArray[1]); // => undefined
+
+  // objectの一種なので...
+  console.log(typeof sparseArray); // => object
+  console.log(Array.isArray(sparseArray)); // true
+
+  // note [ES2015] 配列と分割代入
+  const array = ["one", "two", "three"];
+  const [first, second, third] = array;
+
+  const denseArray = [undefined];
+  console.log(denseArray[0]); // undefined
+  console.log(denseArray[1]); // undefined
+
+  console.log(denseArray.hasOwnProperty(0)); // true
+  console.log(denseArray.hasOwnProperty(1)); // false
+}

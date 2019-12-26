@@ -385,4 +385,135 @@ console.log(obj1.method3());
 
   console.log(denseArray.hasOwnProperty(0)); // true
   console.log(denseArray.hasOwnProperty(1)); // false
+
+  // 要素の検索
+  const colors = [
+    { "color": "red" },
+    { "color": "green" },
+    { "color": "blue" }
+  ];
+
+  const indexOfBlue = colors.findIndex((obj) => {
+    return obj.color === "blue";
+  });
+  console.log(indexOfBlue);
+
+  const blueColor = colors.find((obj) => {
+    return obj.color === "blue";
+  })
+  console.log(blueColor);
+
+  console.log(array.slice(1, 3));
+
+  const isIncludedBlueColor = colors.some((obj) => {
+    return obj.color === 'blue';
+  })
+  console.log(isIncludedBlueColor);
+
+  const newArray = ['a', 'b', ...array];
+}
+
+/*
+# 文字列
+
+- 文字からビット列へ変換することを符号化（エンコード）と呼びます
+- JavaScriptの文字列の各要素はUTF-16のCode Unitで構成されている
+ */
+{
+  const url = "https://example.com?param=1";
+  const indexOfQuery = url.indexOf("?");
+  const query = url.slice(indexOfQuery);
+  console.log(query); // ?param=1
+
+  console.log(url.startsWith("https"));
+  console.log(url.includes("param"));
+
+  // 正規表現リテラルとRegExpコンストラクタの違い
+  // note 正規表現リテラルはソースコードロード時に、RegExpコンストラクタは実行時に正規表現のパターンが評価
+  function main() {
+    // 正規表現リテラルは、ソースコードをロード（パース）した段階で正規表現のパターンが評価 → そのためエラーになる
+    // const invalidPattern = /[/;
+  }
+
+  function main2() {
+    // RegExpコンストラクタは実行時に正規表現のパターンが評価 → 呼び出されるまではエラーにならない → 変数と組み合わせる場合など
+    // エスケープも必要でパフォーマンスも悪い
+    const invalidPattern = new RegExp("[]");
+  }
+
+  const str = "ABC あいう DE えお";
+  const alphabetsPattern = /[a-zA-Z]+/g;
+  let matches;
+  while (matches = alphabetsPattern.exec(str)) {
+    console.log(`match: ${matches[0]}, lastIndex: ${alphabetsPattern.lastIndex}`);
+  }
+
+  function toDateJa(dateString) {
+    return dateString.replace(/(\d{4})-(\d{2})-(\d{2})/, (all, year, month, day) => {
+      return `${year}年${month}月${day}日`;
+    });
+  }
+  console.log(toDateJa("今日は2017-03-01です")); // => "今日は2017年03月01日です"
+
+  // note [ES2015] タグ付きテンプレート関数
+  // タグ付きテンプレート関数とは、関数`テンプレート` という形式で記述する関数とテンプレートリテラルをあわせた表現
+  // 変数をURLエスケープするタグ関数
+  function escapeURL(strings, ...values) {
+    return strings.reduce((result, str, i) => {
+      return result + encodeURIComponent(values[i - 1]) + str;
+    });
+  }
+
+  const input = "A&B";
+  // escapeURLタグ関数を使ったタグ付きテンプレート
+  const escapedURL = escapeURL`https://example.com/search?q=${input}&sort=desc`;
+  console.log(escapedURL); // => "https://example.com/search?q=A%26B&sort=desc"
+}
+
+/*
+# 文字列とUnicode
+
+- Unicodeはすべての文字（制御文字などの画面に表示されない文字も含む）に対してIDを定義する目的で策定されている仕様
+- この「文字」に対する「一意のID」のことをCode Point（符号位置）と呼ぶ
+
+ */
+{
+  console.log("あ".codePointAt(0)); // => 12354
+  console.log(String.fromCodePoint(12354)); // => "あ"
+
+  // UTF-16では2つCode Unitの組み合わせ（合計4バイト）で1つの文字（1つのCode Point）を表現する仕組みをサロゲートペアと呼ぶ
+  // 例えば 🍎 は \uD83C\uDF4E
+  console.log("🍎".codePointAt(0)); // => 127822
+  console.log("🍎".length); // => 2
+
+  // note [ES2015] 正規表現のu（Unicode）フラグを使用した方が良い
+  // uフラグがない場合は、Code Unitが順番に並んだものとして扱い、uフラグをつけるとCode Pointごとに扱う → サロゲートペアも正しく扱える
+
+  function countOfCodePoints(str, codePoint) {
+    let count = 0;
+    for (const item of str) {
+      if (item === codePoint) {
+        count++;
+      }
+    }
+    return count;
+  }
+
+  console.log(countOfCodePoints("🍎🍇🍎🥕🍒", "🍎")); // 2
+}
+
+/*
+# ラッパーオブジェクト
+
+- JavaScriptのデータ型はプリミティブ型とオブジェクトに分けられる
+- 常にリテラルを使う方が良い
+ */
+
+{
+  // プリミティブ型の文字列がStringオブジェクトのインスタンスメソッドであるtoUpperCaseメソッドを呼び出せる → 自動でラッパーオブジェクトに変換される
+  console.log("string".toUpperCase()); // => "STRING"
+
+  // プリミティブ型の値を包んだ（ラップした）オブジェクト → ラッパーオブジェクト
+  const str = new String("input value");
+  console.log(typeof str); // object
 }

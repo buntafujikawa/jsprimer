@@ -639,3 +639,57 @@ console.log(obj1.method3());
   // note Arrow Functionで定義された関数やメソッドにおけるthisがどの値を参照するかは関数の定義時（静的）に決まります
   // Arrow Functionはthisをもつことができないので、thisをbindできない
 }
+
+/*
+# クラス
+
+- ここではクラスは構造、動作、状態を定義できるものを示すことにする
+  - クラスとは動作や状態を定義した構造
+  - インスタンスはクラスに定義した動作を継承し、状態は動作によって変化
+- ECMAScript 2019では、外から原理的に参照できないプライベートプロパティ（hard private）を定義する構文はない
+  - 習慣として外から直接読み書きしてほしくないプロパティを_（アンダーバー）で開始する
+- インスタンスからプロトタイプメソッドを呼び出せるのはプロトタイプチェーンと呼ばれる仕組みによるもの
+
+ */
+{
+  class ConflictClass {
+    constructor() {
+      this.method = () => {
+        console.log("インスタンスオブジェクトのメソッド");
+      };
+    }
+
+    // プロトタイプメソッド or インスタンスメソッド
+    // note class構文のメソッド定義は、このプロトタイプオブジェクトのプロパティとして定義される
+    method() {
+      console.log("プロトタイプメソッド");
+    }
+  }
+
+  const conflict = new ConflictClass();
+  conflict.method(); // "インスタンスオブジェクトのメソッド"
+  delete conflict.method;
+  // 上書きされずにどちらも定義されている
+  // note プロパティを参照する際に、オブジェクト自身から[[Prototype]]内部プロパティへと順番に探す仕組みのことをプロトタイプチェーンと呼ぶ
+  conflict.method(); // "プロトタイプのメソッド"
+}
+
+/*
+# 例外処理
+
+ */
+{
+  function assertPositiveNumber(num) {
+    if (num < 0) {
+      throw new Error(`${num} is not positive.`);
+    }
+  }
+
+  try {
+    // 0未満の値を渡しているので、関数が例外を投げる
+    assertPositiveNumber(-1);
+  } catch (error) {
+    console.log(error instanceof Error); // => true
+    console.log(error.message); // => "-1 is not positive."
+  }
+}

@@ -215,7 +215,7 @@ console.log(obj1.method3());
 - 式は文となることができますが(式文)、文は式となることができない
  */
 
-// ブロックにすると、影響範囲がブロックの中だけになる
+// {と}で囲んだ範囲をブロックと呼び、ブロックもスコープを作成する ifとかと一緒
 {
   const isTrue = true;
   // isTrueという式がif文の中に出てくる
@@ -516,4 +516,126 @@ console.log(obj1.method3());
   // プリミティブ型の値を包んだ（ラップした）オブジェクト → ラッパーオブジェクト
   const str = new String("input value");
   console.log(typeof str); // object
+}
+
+/*
+# 関数とスコープ
+
+- ビルトインオブジェクト
+  - プログラム実行時に自動的に定義される
+  - undefinedのような変数やdocumentやmoduleなど
+- クロージャーとは「外側のスコープにある変数への参照を保持できる」という関数がもつ性質のこと
+- JavaScriptのスコープでは、どの識別子がどの変数を参照するかが静的に決定されるという性質を持ちます。 つまり、コードを実行する前にどの識別子がどの変数を参照しているかがわかる
+- 不要なデータをメモリから解放する方法は、ガベージコレクションが採用されている
+  - note データがメモリ上から解放されるかどうかはあくまで、そのデータが参照されているかによって決定される
+ */
+
+{
+  // note varの巻き上げ
+  // 変数宣言が宣言と代入の2つの部分から構成されていると考える
+  // 宣言部分が暗黙的にもっとも近い関数またはグローバルスコープの先頭に巻き上げられ、代入部分はそのままの位置に残るという特殊な動作をする
+
+  // 下記の行だけだとエラーになるが、そのあとで定義をしていると undefined となる
+
+  // 変数の宣言部分がグローバルスコープの先頭に移動しているかのように見える動作をする
+  // var var_x; ← この行が追加されたような動き
+  console.log(var_x)
+  var var_x = 1;
+
+  // GC
+  let t = "A"; // 文字列Aのデータがメモリ上に確保される
+  t = "B"; // Aという文字列のデータはどこからも参照されなくなったのでGCの回収対象になる
+
+  function printX() {
+    const x = "X";
+    console.log(x); // => "X"
+  }
+
+  printX(); // この時点で`"X"`を参照するものはなくなる -> 解放される
+
+  function createArray() {
+    const tempArray = [1, 2, 3];
+    return tempArray;
+  }
+  const array = createArray();
+  console.log(array); // => [1, 2, 3]
+  // 変数`array`が`[1, 2, 3]`という値を参照してる -> 解放されない
+
+  // countが参照され続けているから解放されない
+  function createCounter() {
+    let count = 0;
+    // `increment`関数は`count`変数を参照
+    function increment() {
+      count = count + 1;
+      return count;
+    }
+    return increment;
+  }
+  // `myCounter`は`createCounter`が返した関数を参照
+  const myCounter = createCounter();
+  myCounter(); // => 1
+  myCounter(); // => 2
+}
+
+/*
+# 関数とthis
+
+- オブジェクトのプロパティが関数である場合にそれをメソッドと呼びます。 一般的にはメソッドも含めたものを関数といい、関数宣言などとプロパティである関数を区別する場合にメソッドと呼びます
+- 関数におけるthisの基本的な参照先（暗黙的に関数に渡すthisの値）はベースオブジェクト
+  - ベースオブジェクトとは「メソッドを呼ぶ際に、そのメソッドのドット演算子またはブラケット演算子のひとつ左にあるオブジェクト」のこと
+- thisが参照先を決めるルールは、Arrow Functionとそれ以外の関数定義の方法で異なる
+ */
+{
+  // 関数宣言や関数式におけるthis
+  function fn1() {
+    return this;
+  }
+  console.log(fn1()); // strictモードだとundefined、そうでないとグローバルオブジェクトを参照するように変換される
+
+  // メソッド呼び出しにおけるthis
+
+  const person = {
+    fullName: "Brendan Eich",
+    sayName: function() {
+      // `person.fullName`と書いているのと同じ
+      return this.fullName;
+    }
+  };
+  // `person.fullName`を出力する
+  console.log(person.sayName()); // => "Brendan Eich"
+
+  // 問題1: thisを含むメソッドを変数に代入した場合
+  // note thisがどの値を参照するかは関数の呼び出し時（動的）に決まる
+  // sayのベースオブジェクトを参照している
+  const say = person.sayName;
+  // say(); TypeError: Cannot read property 'fullName' of undefined
+
+  function say2(message) {
+    return `${message} ${this.fullName}！`;
+  }
+  // callでthisを明示する (apply,bind)
+  console.log(say2.call(person, "こんにちは")); // こんにちは Brendan Eich！
+
+
+  // 問題2: コールバック関数とthis
+  const Prefixer = {
+    prefix: "pre",
+    prefixArray(strings) {
+      // コールバック関数として匿名関数を渡しているので、thisがこの匿名関数のベースオブジェクトを参照する事になる
+      return strings.map(function(str) {
+        // コールバック関数における`this`は`undefined`となる(strict mode)
+        return this.prefix + "-" + str;
+      });
+    },
+    prefixArray2(strings) {
+      return strings.map((str) => {
+        // Arrow Function自体は`this`を持たない
+        return this.prefix + "-" + str;
+      });
+    }
+  };
+
+  // Arrow Functionとthis
+  // note Arrow Functionで定義された関数やメソッドにおけるthisがどの値を参照するかは関数の定義時（静的）に決まります
+  // Arrow Functionはthisをもつことができないので、thisをbindできない
 }

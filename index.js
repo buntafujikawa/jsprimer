@@ -693,3 +693,99 @@ console.log(obj1.method3());
     console.log(error.message); // => "-1 is not positive."
   }
 }
+
+// 非同期処理は別ファイルに
+
+/*
+# [ES2015] Map/Set
+
+- マップとは、キーと値の組み合わせからなる抽象データ型(連想配列)
+- エントリーとは、ひとつのキーと値の組み合わせを[キー, 値]という形式の配列で表現したもの
+- 元々はオブジェクトをmapとして使うようにしてた(Object.create(null))が、prototypeオブジェクトの衝突などの問題があった
+ */
+{
+  // コンストラクタ引数として渡すことができるのはエントリーの配列
+  const map = new Map([["key1", "value1"], ['key2', 'value2']]);
+  console.log(map.size);
+
+  map.set("key3", "value3");
+  console.log(map.size);
+  console.log(map.get("key3"));
+
+  map.delete("key3");
+  console.log(map.size);
+
+  // map.clear();
+  // console.log(map.size);
+
+  const results = [];
+  map.forEach((value, key) => {
+    results.push(`${key}:${value}`);
+  })
+  console.log(results); // [ 'key1:value1', 'key2:value2' ]
+
+  console.log(map.keys()); // [Map Iterator] { 'key1', 'key2' } Iteratorオブジェクトを返す
+  const keys = [];
+  for (const key of map.keys()) {
+    keys.push(key);
+  }
+  console.log(keys); // [ 'key1', 'key2' ]
+
+  for (const [key, value] of map) {
+    results.push(`${key}:${value}`);
+  }
+  console.log(results);
+
+  /*
+  ## WeakMap
+  - Mapと違う点は、キーを弱い参照（Weak Reference）でもつこと
+    - GCによるオブジェクトの解放を妨げないための特殊な参照で、オブジェクトへの弱い参照があったとしてもそのオブジェクトは解放できる
+  - WeakMapはMapと似ていますがiterableではありませ
+    - keysメソッドや、データの数を返すsizeプロパティなどは存在しません
+   */
+  const weekMap = new WeakMap();
+  let obj = {};
+  map.set(obj, "value");
+  obj = null; // GCが発生するタイミングでweek mapから値が破棄される
+
+  // WeakMapの主な使い方のひとつは、クラスにプライベートの値を格納すること / 計算結果を一時的に保存する
+  const cache = new WeakMap();
+
+  function getHeight(element) {
+    if (cache.has(element)) {
+      return cache.get(element);
+    }
+    const height = element.getBoundingClientRect().height;
+    // elementオブジェクトに対して高さを紐付けて保存している
+    cache.set(element, height);
+    return height;
+  }
+
+  // Mapにおけるキーの比較では、NaN同士は常に等価であるとみなされます
+  const mapNaN = new Map();
+  map.set(NaN, "value");
+  console.log(NaN === NaN); // => false
+  console.log(map.has(NaN)); // => true
+
+  /*
+  ## Set
+  - 重複する値がないことを保証したコレクションのこと
+  - コンストラクタ引数として渡すことができるのはiterableオブジェクト
+   */
+  const set = new Set(["value1", "value2", "value2"]);
+  console.log(set.size); // 2 value2が重複しているので、片方が無視される
+
+  if (!set.has("a")) set.add("a");
+  console.log(set.size);
+  // set.delete("a");
+  // set.clear();
+
+  const results2 = [];
+  set.forEach((value) => {
+    results2.push(value);
+  })
+  console.log(results2);
+  // keys,entriesは同じ
+  // WeekSet 値の追加と削除、存在確認以外のことができない
+}
+

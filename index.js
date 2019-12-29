@@ -789,3 +789,96 @@ console.log(obj1.method3());
   // WeekSet 値の追加と削除、存在確認以外のことができない
 }
 
+/*
+# JSON
+
+- JSONはJavaScript Object Notationの略
+http://www.json.org/json-ja.html
+- JSONオブジェクトはJSON形式の文字列とJavaScriptのオブジェクトを相互に変換するためのparseメソッドとstringifyメソッドを提供
+ */
+{
+  const json = '{ "id": 1, "name": "js-primer" }';
+  const obj = JSON.parse(json);
+  console.log(obj.id);
+  console.log(obj.name);
+
+  // note 外部のプログラムが送ってくるデータが常にJSONとして正しい保証はないので、JSON.parseメソッドは基本的にtry...catch構文で例外処理をするべき
+  const userInput = "not json value";
+  try {
+    const json = JSON.parse(userInput);
+  } catch (error) {
+    console.log("パースできませんでした");
+  }
+
+  // オブジェクトをJSON文字列に変換する
+  console.log(JSON.stringify(obj)); // {"id":1,"name":"js-primer"}
+
+  // 第2引数はreplacer引数とも呼ばれ、変換後のJSONに含まれるプロパティ関数あるいは配列を渡せます。 関数を渡した場合は引数にプロパティのキーと値が渡され、その返り値によって文字列に変換される際の挙動をコントロールできます。
+  const replacer = (key, value) => {
+    if (value === null) {
+      return undefined;
+    }
+    return value;
+  };
+  const obj2 = { id: 1, name: "js-primer", bio: null };
+  console.log(JSON.stringify(obj2)); // {"id":1,"name":"js-primer","bio":null}
+  console.log(JSON.stringify(obj2, replacer)); // => '{"id":1,"name":"js-primer"}'
+  // 配列だとホワイトリストとして使われる
+  console.log(JSON.stringify(obj, ["id", "name"])); // {"id":1,"name":"js-primer"}
+
+  // 第3引数はspace引数とも呼ばれ、変換後のJSON形式の文字列を読みやすくフォーマットする際のインデントを設定できます
+  console.log(JSON.stringify(obj, null, 2));
+  /*
+  {
+    "id": 1,
+    "name": "js-primer"
+  }
+   */
+
+  // toJSONメソッド
+  const obj3 = {
+    foo: "foo",
+    toJSON() {
+      return "bar";
+    }
+  };
+  console.log(JSON.stringify(obj3)); // => '"bar"'
+  console.log(JSON.stringify({ x: obj3 })); // => '{"x":"bar"}'
+}
+
+/*
+# Date
+
+- DateオブジェクトはStringやArrayなどと同じく、ECMAScriptで定義されたビルトインオブジェクトです
+ */
+{
+  console.log(Date.now())
+  const now = new Date();
+  console.log(now.toISOString()); // 2019-12-29T02:37:53.654Z
+
+  // note ISO 8601形式以外の文字列のパースは、ブラウザごとに異なる結果を返す可能性がある
+  const inUTC = new Date("2006-01-02T15:04:05.999Z");
+  console.log(inUTC.toISOString()); // => "2006-01-02T15:04:05.999Z"
+
+  // note タイムゾーンの指定はできず、結果が実行環境に依存してしまうため、基本的にこの方法は使うべきでありません
+  // const date1 = new Date(2006, 0, 2, 15, 4, 5, 999);
+}
+
+/*
+# Math
+
+- Mathオブジェクトはビルトインオブジェクトですが、コンストラクタではありません。 つまりMathオブジェクトはインスタンスを作らず、 すべての定数や関数はMathオブジェクトの静的なプロパティやメソッドとして提供されています。
+https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Global_Objects/Math
+ */
+{
+  console.log(Math.random());
+  console.log(Math.max(1, 10));
+  console.log(Math.min(1, 10));
+
+  const numbers = [1, 2, 3, 4, 5];
+  console.log(Math.max(...numbers));
+
+  // 単純に小数部分を切り落とす
+  console.log(Math.trunc(1.3)); // => 1
+  console.log(Math.trunc(-1.3)); // => -1
+}

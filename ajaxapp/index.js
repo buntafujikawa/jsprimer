@@ -6,24 +6,27 @@ Fetch APIは同じくHTTP通信を扱うXMLHttpRequestと似たAPIですが、�
  */
 
 function main() {
-  fetchUserInfo("buntafujikawa");
+  /*
+  Promiseチェーンを使って処理を分割する利点は、同期処理と非同期処理を区別せずに連鎖できることです
+  一般に、同期的に書かれた処理を後から非同期処理へと変更することは、全体を書き換える必要があるため難しいです。
+  そのため、最初から処理を分けておき、処理をthenを使ってつなぐことで、変更に強いコードを書くことができます。
+   */
+  fetchUserInfo("buntafujikawa")
+  .then((userInfo) => createView(userInfo))
+  .then((view) => displayView(view))
+  .catch((error) => {
+    console.error(`エラーが発生しました (${error})`);
+  });
 }
 
 function fetchUserInfo(userId) {
   fetch(`https://api.github.com/users/${encodeURIComponent(userId)}`)
   .then(response => {
-    console.log(response.status);
-
     if (!response.ok) {
-      console.error("エラーレスポンス", response);
+      new Promise.reject(new Error(`${response.status}: ${response.statusText}`));
     } else {
-      return response.json().then(userInfo => {
-        const view = createView(userInfo);
-        displayView(view);
-      });
+      return response.json;
     }
-  }).catch(error => {
-    console.error(error);
   });
 }
 
